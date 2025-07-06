@@ -6,7 +6,7 @@ import threading
 from telegram import Bot, Update, InlineKeyboardButton, InlineKeyboardMarkup, ChatAction
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext, MessageHandler, Filters
 
-BOT_TOKEN = "8094196948:AAHsnG2Z3EmDHpKDlR7sENtRm9xdHddLpgc"
+BOT_TOKEN = os.getenv("BOT_TOKEN")  # 👈 IMPORTANT: Pulls your token from Render env variable
 AFFILIATE_LINK = "https://broker-qx.pro/sign-up/?lid=1427258"
 ADMIN_ID = 5978928248
 
@@ -49,6 +49,7 @@ def start(update: Update, context: CallbackContext):
         bot.send_photo(chat_id=update.effective_chat.id, photo=open(banner_path, "rb"), caption=welcome_caption, parse_mode="Markdown")
     else:
         update.message.reply_text(welcome_caption, parse_mode="Markdown")
+
     if user_id not in approved_users:
         keyboard = [
             [InlineKeyboardButton("🔗 Unlock Access", url=AFFILIATE_LINK)],
@@ -56,11 +57,12 @@ def start(update: Update, context: CallbackContext):
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         update.message.reply_text(
-            "🚫 *Access Locked*\n\nJoin the inner circle — sign up & contact admin to unlock your vault key.",
+            "🚫 *Access Locked*\n\nSign up & contact admin to unlock your vault key.",
             parse_mode="Markdown",
             reply_markup=reply_markup
         )
         return
+
     keyboard = [
         [InlineKeyboardButton("💹 Get OTC Signal", callback_data="getsignal")],
         [InlineKeyboardButton("📊 My Stats", callback_data="mystats")],
@@ -154,7 +156,7 @@ def handle_pnl(update: Update, context: CallbackContext):
         caption = "🔥 *Profit locked in! Vault secured.*"
     else:
         banner = PNL_LOSS_BANNER
-        caption = "📉 *Loss noted — vault remains ready.*"
+        caption = "📈 *One loss — many profits ahead! Stay sharp!*"
     if os.path.exists(banner):
         bot.send_photo(chat_id=query.from_user.id, photo=open(banner, "rb"), caption=caption, parse_mode="Markdown")
     else:
@@ -186,3 +188,4 @@ dp.add_handler(MessageHandler(Filters.text & ~Filters.command, custom_pair_text)
 print("✅ Frontmantradez OTC Vault Bot is LIVE with aura + pair filter.")
 updater.start_polling()
 updater.idle()
+
